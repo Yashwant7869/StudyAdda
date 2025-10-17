@@ -1,4 +1,5 @@
 import {FiBookOpen, FiCheckCircle, FiHome, FiList, FiLock, FiUsers} from "react-icons/fi";
+import {MdEventSeat} from "react-icons/md";
 
 const navConfig = [
   {
@@ -25,6 +26,11 @@ const navConfig = [
     title: 'Borrowals',
     path: '/borrowals',
     icon: <FiCheckCircle/>,
+  },
+  {
+    title: 'Seat Booking',
+    path: '/seats',
+    icon: <MdEventSeat/>,
   },
   {
     title: 'Users',

@@ -80,7 +80,7 @@ export default function LoginPage() {
           <StyledContent>
             <Typography variant="h4" sx={{ color: "#666666", fontWeight: "600" }} textAlign="center" gutterBottom
                         paddingBottom={0}>
-              Library System
+               StudyAdda
             </Typography>
             <Typography variant="h3" textAlign="center" gutterBottom paddingBottom={3}>
               Sign in

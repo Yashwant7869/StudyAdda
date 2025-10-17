@@ -8,6 +8,7 @@ import BookPage from "./sections/@dashboard/book/BookPage";
 import DashboardAppPage from "./sections/@dashboard/app/DashboardAppPage";
 import UsersPage from "./sections/@dashboard/user/UserPage";
 import GenrePage from "./sections/@dashboard/genre/GenrePage";
+import SeatPage from "./sections/@dashboard/seat/SeatPage";
 import { useAuth } from "./hooks/useAuth";
 
 // ----------------------------------------------------------------------
@@ -25,7 +26,8 @@ export default function Router() {
         { path: "books", element: <BookPage /> },
         { path: "borrowals", element: <BorrowalPage /> },
         { path: "genres", element: <GenrePage /> },
-        { path: "users", element: <UsersPage /> }
+        { path: "users", element: <UsersPage /> },
+        { path: "seats", element: <SeatPage /> }
       ]
     },
     {
@@ -51,7 +53,8 @@ export default function Router() {
         { path: "books", element: <BookPage /> },
         { path: "authors", element: <AuthorPage /> },
         { path: "genres", element: <GenrePage /> },
-        { path: "borrowals", element: <BorrowalPage /> }
+        { path: "borrowals", element: <BorrowalPage /> },
+        { path: "seats", element: <SeatPage /> }
       ]
     },
     {

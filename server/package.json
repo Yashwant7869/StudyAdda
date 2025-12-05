@@ -1,7 +1,7 @@
 {
   "name": "library_management_system_backend",
   "version": "1.1.0",
-  "description": "Backend of a simple Library Management System for RAD MERN project, built using Express and MongoDB",
+  "description": "Backend of a Library Management System project",
   "keywords": [
     "rad",
     "mern",
@@ -10,11 +10,10 @@
     "mongodb"
   ],
   "authors": [
-    "Sandul Renuja",
-    "Abdullah Jasmine",
-    "Ravindu Wegiriya",
-    "Kaveesha Muthukuda",
-    "Induwara Pathirana"
+    "Sagar Pandey",
+    "Princy Thakur",
+    "Yashwant Singh Gour",
+    "Om Shiddharth Gautam"
   ],
   "main": "index.js",
   "scripts": {

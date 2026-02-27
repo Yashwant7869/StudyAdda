@@ -43,10 +43,14 @@ mongoose.connect(process.env.MONGO_URI, {
   .catch((err) => console.log('DB connection error', err));
 
 // Use CORS for Cross Origin Resource Sharing
-app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true
-}))
+app.use(
+  cors({
+    origin: "http://localhost:3000", 
+    credentials: true,  
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Set middleware to manage sessions
 app.use(

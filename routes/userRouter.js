@@ -1,27 +1,41 @@
-// Import required modules
-const express = require("express")
+const express = require('express');
 const router = express.Router();
-
-// Import functions from controller
+const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const {
   getUser,
   getAllUsers,
   getAllMembers,
   addUser,
   updateUser,
-  deleteUser
-} = require('../controllers/userController')
+  deleteUser,
+  blockStudent,
+  unblockStudent,
+  getStudentByScholarNumber,
+  getStudentByEnrollmentNumber,
+  getStudentByRFID,
+  getMyProfile
+} = require('../controllers/userController');
 
-router.get("/getAll", (req, res) => getAllUsers(req, res))
+router.use(isAuthenticated);
 
-router.get("/getAllMembers", (req, res) => getAllMembers(req, res))
+// Profile route for logged-in user
+router.get('/me', getMyProfile);
 
-router.get("/get/:id", (req, res) => getUser(req, res))
+// Admin-only routes
+router.get('/getAll', isAdmin, getAllUsers);
+router.get('/getAllMembers', isAdmin, getAllMembers);
+router.get('/get/:id', isAdmin, getUser);
+router.post('/add', isAdmin, addUser);
+router.put('/update/:id', isAdmin, updateUser);
+router.delete('/delete/:id', isAdmin, deleteUser);
 
-router.post("/add", (req, res) => addUser(req, res))
+// Student management
+router.patch('/:id/block', isAdmin, blockStudent);
+router.patch('/:id/unblock', isAdmin, unblockStudent);
 
-router.put("/update/:id", (req, res) => updateUser(req, res))
-
-router.delete("/delete/:id", (req, res) => deleteUser(req, res))
+// Student search
+router.get('/search/scholar/:scholarNumber', isAdmin, getStudentByScholarNumber);
+router.get('/search/enrollment/:enrollmentNumber', isAdmin, getStudentByEnrollmentNumber);
+router.get('/search/rfid/:rfidCard', isAdmin, getStudentByRFID);
 
 module.exports = router;

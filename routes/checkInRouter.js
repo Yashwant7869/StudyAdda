@@ -1,0 +1,30 @@
+const express = require('express');
+const router = express.Router();
+const { isAuthenticated, isAdmin } = require('../middleware/auth');
+const {
+  getAllCheckIns,
+  checkInStudent,
+  checkOutStudent,
+  checkOutByRFID,
+  getStudentCheckInHistory
+} = require('../controllers/checkInController');
+
+// All routes require authentication
+router.use(isAuthenticated);
+
+// GET all check-in records (admin only) - ?status=checked-in&date=today
+router.get('/', isAdmin, getAllCheckIns);
+
+// POST check in via RFID - body: { rfidCard }
+router.post('/checkin', isAdmin, checkInStudent);
+
+// POST check out via RFID - body: { rfidCard }
+router.post('/checkout-rfid', isAdmin, checkOutByRFID);
+
+// POST check out by record ID
+router.post('/checkout/:checkInId', isAdmin, checkOutStudent);
+
+// GET student's check-in history
+router.get('/student/:studentId', isAdmin, getStudentCheckInHistory);
+
+module.exports = router;

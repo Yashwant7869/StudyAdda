@@ -1,24 +1,35 @@
-// Import required modules
-const express = require("express")
+const express = require('express');
 const router = express.Router();
-
-// Import functions from controller
+const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const {
-    getBorrowal,
-    getAllBorrowals,
-    addBorrowal,
-    updateBorrowal,
-    deleteBorrowal
-} = require('../controllers/BorrowalController')
+  getBorrowal,
+  getAllBorrowals,
+  addBorrowal,
+  returnBorrowal,
+  updateBorrowal,
+  deleteBorrowal,
+  getBorrowalsByStudent,
+  getIssuedBooksByStudent,
+  searchAvailableBooks
+} = require('../controllers/borrowalController');
 
-router.get("/getAll", (req, res) => getAllBorrowals(req,res))
+router.use(isAuthenticated);
 
-router.get("/get/:id", (req, res) => getBorrowal(req, res))
+// Search available books (for issue dialog) - must be before /:id routes
+router.get('/available-books', isAdmin, searchAvailableBooks);
 
-router.post("/add", (req, res) => addBorrowal(req, res))
+// Student borrowal history
+router.get('/student/:studentId/history', isAdmin, getBorrowalsByStudent);
 
-router.put("/update/:id", (req, res) => updateBorrowal(req, res))
+// Currently issued books for a student
+router.get('/student/:studentId/issued', isAdmin, getIssuedBooksByStudent);
 
-router.delete("/delete/:id", (req, res) => deleteBorrowal(req, res))
+// Admin CRUD
+router.get('/getAll', isAdmin, getAllBorrowals);
+router.get('/get/:id', isAdmin, getBorrowal);
+router.post('/add', isAdmin, addBorrowal);
+router.post('/return/:id', isAdmin, returnBorrowal);
+router.put('/update/:id', isAdmin, updateBorrowal);
+router.delete('/delete/:id', isAdmin, deleteBorrowal);
 
 module.exports = router;

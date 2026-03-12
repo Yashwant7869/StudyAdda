@@ -1,49 +1,77 @@
-// Importing modules
 const mongoose = require("mongoose");
 const crypto = require("crypto");
 
-// Creating user schema
+const lostDamagedBookSchema = new mongoose.Schema({
+  bookName: { type: String, required: true },
+  type: { type: String, enum: ['Lost', 'Damaged'], required: true },
+  date: { type: Date, default: Date.now },
+  fineAmount: { type: Number, default: 0 },
+  status: { type: String, enum: ['Paid', 'Unpaid'], default: 'Unpaid' }
+}, { _id: true });
+
 const UserSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  dob: {
-    type: Date,
-    required: false,
-  },
-  phone: {
-    type: String,
-    required: false,
-  },
-  isAdmin: {
-    type: Boolean,
-    required: true,
-  },
-  photoUrl: {
-    type: String,
-    required: true,
-  },
+  // Basic info
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  dob: { type: Date, required: false },
+  phone: { type: String, required: false },
+  isAdmin: { type: Boolean, required: true, default: false },
+  photoUrl: { type: String, required: false, default: '' },
+
+  // Auth
   hash: String,
   salt: String,
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+
+  // Student-specific fields (only for isAdmin: false users)
+  scholarNumber: { type: String, sparse: true },
+  enrollmentNumber: { type: String, sparse: true },
+  rfidCard: { type: String, sparse: true },
+  course: { type: String },
+  branch: { type: String },
+  year: { type: Number },
+  semester: { type: Number },
+  section: { type: String },
+  address: { type: String },
+  admissionDate: { type: Date },
+
+  // Status & blocking
+  status: {
+    type: String,
+    enum: ['Active', 'Inactive', 'Blocked'],
+    default: 'Active'
+  },
+  blockReason: { type: String, default: null },
+
+  // Fine tracking
+  fineAmount: { type: Number, default: 0 },
+  unpaidFine: { type: Number, default: 0 },
+
+  // Book limits
+  maxBookLimit: { type: Number, default: 5 },
+  totalBooksIssued: { type: Number, default: 0 },
+
+  // Lost/Damaged books
+  lostDamagedBooks: [lostDamagedBookSchema]
+}, { timestamps: true });
+
+// Virtual for available book limit
+UserSchema.virtual('availableBookLimit').get(function () {
+  const active = this.totalBooksIssued || 0;
+  return Math.max(0, this.maxBookLimit - active);
 });
 
-// Method to set salt and hash the password for a user
-UserSchema.methods.setPassword = function (password) {
-  // Creating a  unique salt for a particular user
-  this.salt = crypto.randomBytes(16).toString("hex");
+UserSchema.set('toJSON', { virtuals: true });
+UserSchema.set('toObject', { virtuals: true });
 
-  // Hashing user's salt and password with 1000 iterations
+UserSchema.methods.setPassword = function (password) {
+  this.salt = crypto.randomBytes(16).toString("hex");
   this.hash = crypto
     .pbkdf2Sync(password, this.salt, 1000, 64, `sha512`)
     .toString(`hex`);
 };
 
-// Method to check whether the entered password is correct or not
 UserSchema.methods.isValidPassword = function (password) {
   const hash = crypto
     .pbkdf2Sync(password, this.salt, 1000, 64, `sha512`)

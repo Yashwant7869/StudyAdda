@@ -1,6 +1,9 @@
 const User = require('../models/user')
 const passport = require("passport");
 
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+
 const registerUser = async (req, res) => {
   try {
     const user = await User.findOne({email: req.body.email});
@@ -54,6 +57,72 @@ const loginUser = async (req, res, next) => {
   }
 }
 
+const forgotPassword = async (req,res)=>{
+  try{
+
+    const user = await User.findOne({email:req.body.email})
+
+    if(!user){
+      return res.status(404).json({success:false,message:"User not found"})
+    }
+
+    const token = crypto.randomBytes(32).toString("hex")
+
+    user.resetPasswordToken = token
+    user.resetPasswordExpires = Date.now() + 3600000
+
+    await user.save()
+
+    const transporter = nodemailer.createTransport({
+      service:"gmail",
+      auth:{
+        user:process.env.EMAIL,
+        pass:process.env.EMAIL_PASS
+      }
+    })
+
+    const resetLink = `http://localhost:3000/reset-password/${token}`
+
+    await transporter.sendMail({
+      to:user.email,
+      subject:"Password Reset",
+      html:`<p>Click below to reset password</p>
+            <a href="${resetLink}">${resetLink}</a>`
+    })
+
+    res.json({success:true,message:"Reset link sent to email"})
+
+  }catch(err){
+    res.status(500).json({success:false,err})
+  }
+}
+
+const resetPassword = async (req,res)=>{
+  try{
+
+    const user = await User.findOne({
+      resetPasswordToken:req.body.token,
+      resetPasswordExpires:{$gt:Date.now()}
+    })
+
+    if(!user){
+      return res.status(400).json({success:false,message:"Invalid token"})
+    }
+
+    user.setPassword(req.body.password)
+
+    user.resetPasswordToken = undefined
+    user.resetPasswordExpires = undefined
+
+    await user.save()
+
+    res.json({success:true,message:"Password updated"})
+
+  }catch(err){
+    res.status(500).json({success:false,err})
+  }
+}
+
 const logoutUser = async (req, res, next) => {
   req.logout((err) => {
     if (err) {
@@ -67,5 +136,7 @@ const logoutUser = async (req, res, next) => {
 module.exports = {
   registerUser,
   loginUser,
-  logoutUser
+  logoutUser,
+  forgotPassword,
+  resetPassword
 }

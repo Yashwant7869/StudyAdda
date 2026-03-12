@@ -1,24 +1,21 @@
-// Import required modules
-const express = require("express")
+const express = require('express');
 const router = express.Router();
-
-// Import functions from controller
+const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const {
-    getAuthor,
-    getAllAuthors,
-    addAuthor,
-    updateAuthor,
-    deleteAuthor
-} = require('../controllers/authorController')
+  getAuthor,
+  getAllAuthors,
+  addAuthor,
+  updateAuthor,
+  deleteAuthor
+} = require('../controllers/authorController');
 
-router.get("/getAll", (req, res) => getAllAuthors(req, res))
+// Members can read authors (for book browsing)
+router.get('/getAll', isAuthenticated, getAllAuthors);
+router.get('/get/:id', isAuthenticated, getAuthor);
 
-router.get("/get/:id", (req, res) => getAuthor(req, res))
-
-router.post("/add", (req, res) => addAuthor(req, res))
-
-router.put("/update/:id", (req, res) => updateAuthor(req, res))
-
-router.delete("/delete/:id", (req, res) => deleteAuthor(req, res))
+// Admin-only
+router.post('/add', isAuthenticated, isAdmin, addAuthor);
+router.put('/update/:id', isAuthenticated, isAdmin, updateAuthor);
+router.delete('/delete/:id', isAuthenticated, isAdmin, deleteAuthor);
 
 module.exports = router;

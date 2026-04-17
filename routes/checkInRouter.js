@@ -17,16 +17,16 @@ const {
 router.get('/', getAllCheckIns);
 
 // POST check in via RFID - body: { rfidCard }
-router.post('/checkin', isAdmin, checkInStudent);
+router.post('/checkin', checkInStudent);
 
 // POST check out via RFID - body: { rfidCard }
-router.post('/checkout-rfid', isAdmin, checkOutByRFID);
+router.post('/checkout-rfid', checkOutByRFID);
 
 // POST check out by record ID
-router.post('/checkout/:checkInId', isAdmin, checkOutStudent);
+router.post('/checkout/:checkInId', checkOutStudent);
 
 // GET student's check-in history
-router.get('/student/:studentId', isAdmin, getStudentCheckInHistory);
+router.get('/student/:studentId', getStudentCheckInHistory);
 
 // POST checkin/checkout by tap
 router.post('/tap', tapRFID);

@@ -15,7 +15,7 @@ exports.getAllSeats = async (req, res) => {
       const queryDate = new Date(date);
       const startOfDay = new Date(queryDate.setHours(0, 0, 0, 0));
       const endOfDay = new Date(queryDate.setHours(23, 59, 59, 999));
-      
+
       filter.$or = [
         { status: 'available' },
         {
@@ -86,7 +86,7 @@ exports.getSeatStatistics = async (req, res) => {
 exports.getSeatById = async (req, res) => {
   try {
     const seat = await Seat.findById(req.params.id).populate('bookedBy', 'name email');
-    
+
     if (!seat) {
       return res.status(404).json({
         success: false,
@@ -111,7 +111,7 @@ exports.getSeatById = async (req, res) => {
 exports.createSeat = async (req, res) => {
   try {
     const seat = await Seat.create(req.body);
-    
+
     res.status(201).json({
       success: true,
       message: 'Seat created successfully',
@@ -164,12 +164,28 @@ exports.bookSeat = async (req, res) => {
     }
 
     // Update seat status
-    seat.status = isAdvanceBooking ? 'booked' : 'occupied';
+    // seat.status = isAdvanceBooking ? 'booked' : 'occupied';
+    const CheckIn = require('../models/checkin');
+
+    const activeCheckIn = await CheckIn.findOne({
+      studentId: userId,
+      status: 'checked-in'
+    });
+
+    const now = new Date();
+    const expiry = new Date(now.getTime() + 20 * 60000);
+
+    if (activeCheckIn) {
+      seat.status = "occupied";
+    } else {
+      seat.status = "booked";
+      seat.bookingEndTime = expiry;
+    }
+
     seat.bookedBy = userId;
-    seat.bookingDate = bookingDate || new Date();
-    seat.bookingStartTime = startTime || new Date();
-    seat.bookingEndTime = endTime;
-    seat.isAdvanceBooking = isAdvanceBooking || false;
+    seat.bookingDate = now;
+    seat.bookingStartTime = now;
+    seat.isAdvanceBooking = false;
     seat.notes = notes || '';
 
     await seat.save();
@@ -300,7 +316,7 @@ exports.updateSeatStatus = async (req, res) => {
     }
 
     seat.status = status;
-    
+
     // If setting to maintenance or available, clear booking info
     if (status === 'maintenance' || status === 'available') {
       seat.bookedBy = null;

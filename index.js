@@ -93,3 +93,30 @@ app.use("/api/member", memberRouter);
 app.get('/', (req, res) => res.send('StudyAdda Library Management API'));
 
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}!`));
+
+const Seat = require('./models/seat');
+
+setInterval(async () => {
+  try {
+    const now = new Date();
+
+    await Seat.updateMany(
+      {
+        status: "booked",
+        bookingEndTime: { $lt: now }
+      },
+      {
+        $set: {
+          status: "available",
+          bookedBy: null,
+          bookingStartTime: null,
+          bookingEndTime: null,
+          bookingDate: null
+        }
+      }
+    );
+
+  } catch (err) {
+    console.log("Seat expire error:", err.message);
+  }
+}, 60000);

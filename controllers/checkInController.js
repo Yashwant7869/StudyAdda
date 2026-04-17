@@ -1,5 +1,6 @@
 const CheckIn = require('../models/checkin');
 const User = require('../models/user');
+const Seat = require('../models/seat');
 
 // Get all check-in records (with student info joined)
 const getAllCheckIns = async (req, res) => {
@@ -108,12 +109,27 @@ const checkInStudent = async (req, res) => {
       status: 'checked-in'
     });
 
+    // for seat management
+    const Seat = require('../models/seat');
+
+    // after successful check-in
+    const seat = await Seat.findOne({
+      bookedBy: student._id,
+      status: "booked"
+    });
+
+    if (seat) {
+      seat.status = "occupied";
+      await seat.save();
+    }
+
     return res.status(201).json({
       success: true,
       message: `${student.name} checked in successfully`,
       student: { name: student.name, scholarNumber: student.scholarNumber, photoUrl: student.photoUrl },
       checkIn: record
     });
+
   } catch (err) {
     return res.status(500).json({ success: false, err: err.message });
   }
@@ -141,6 +157,25 @@ const checkOutStudent = async (req, res) => {
     record.duration = durationMins;
     await record.save();
 
+    // seat management
+    // const Seat = require('../models/seat');
+
+    // after checkout
+    const seat = await Seat.findOne({
+      bookedBy: student._id,
+      status: { $in: ["booked", "occupied"] }
+    });
+
+    if (seat) {
+      seat.status = "available";
+      seat.bookedBy = null;
+      seat.bookingStartTime = null;
+      seat.bookingEndTime = null;
+      seat.bookingDate = null;
+
+      await seat.save();
+    }
+
     return res.status(200).json({
       success: true,
       message: `${record.studentId.name} checked out successfully`,
@@ -148,6 +183,7 @@ const checkOutStudent = async (req, res) => {
       duration: durationMins,
       checkIn: record
     });
+
   } catch (err) {
     return res.status(500).json({ success: false, err: err.message });
   }
@@ -179,6 +215,25 @@ const checkOutByRFID = async (req, res) => {
     record.duration = durationMins;
     await record.save();
 
+    // seat management
+    // const Seat = require('../models/seat');
+
+    // after checkout
+    const seat = await Seat.findOne({
+      bookedBy: student._id,
+      status: { $in: ["booked", "occupied"] }
+    });
+
+    if (seat) {
+      seat.status = "available";
+      seat.bookedBy = null;
+      seat.bookingStartTime = null;
+      seat.bookingEndTime = null;
+      seat.bookingDate = null;
+
+      await seat.save();
+    }
+
     return res.status(200).json({
       success: true,
       message: `${student.name} checked out successfully`,
@@ -186,6 +241,7 @@ const checkOutByRFID = async (req, res) => {
       duration: durationMins,
       checkIn: record
     });
+
   } catch (err) {
     return res.status(500).json({ success: false, err: err.message });
   }
@@ -241,6 +297,22 @@ const tapRFID = async (req, res) => {
       active.duration = duration;
       await active.save();
 
+      // release seat
+      const seat = await Seat.findOne({
+        bookedBy: student._id,
+        status: { $in: ["booked", "occupied"] }
+      });
+
+      if (seat) {
+        seat.status = "available";
+        seat.bookedBy = null;
+        seat.bookingStartTime = null;
+        seat.bookingEndTime = null;
+        seat.bookingDate = null;
+
+        await seat.save();
+      }
+
       return res.json({
         success: true,
         type: 'checkout',
@@ -262,6 +334,17 @@ const tapRFID = async (req, res) => {
       checkInTime: new Date(),
       status: 'checked-in'
     });
+
+    // occupy reserved seat
+    const seat = await Seat.findOne({
+      bookedBy: student._id,
+      status: "booked"
+    });
+
+    if (seat) {
+      seat.status = "occupied";
+      await seat.save();
+    }
 
     return res.json({
       success: true,

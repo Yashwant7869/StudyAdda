@@ -25,7 +25,7 @@ exports.getAllSeats = async (req, res) => {
     }
 
     const seats = await Seat.find(filter)
-      .populate('bookedBy', 'name email')
+      .populate('bookedBy', 'name email scholarNumber enrollmentNumber')
       .sort({ floor: 1, section: 1, seatNumber: 1 });
 
     res.status(200).json({
@@ -85,7 +85,7 @@ exports.getSeatStatistics = async (req, res) => {
 // Get a single seat by ID
 exports.getSeatById = async (req, res) => {
   try {
-    const seat = await Seat.findById(req.params.id).populate('bookedBy', 'name email');
+    const seat = await Seat.findById(req.params.id).populate('bookedBy', 'name email scholarNumber enrollmentNumber');
 
     if (!seat) {
       return res.status(404).json({
@@ -151,17 +151,26 @@ exports.bookSeat = async (req, res) => {
     }
 
     // Check if user already has an active booking
-    const existingBooking = await Seat.findOne({
-      bookedBy: userId,
-      status: { $in: ['booked', 'occupied'] }
-    });
-
-    if (existingBooking) {
-      return res.status(400).json({
-        success: false,
-        message: 'You already have an active seat booking. Please release it first.'
+    if (req.user.role !== 'admin') {
+      const existingBooking = await Seat.findOne({
+        bookedBy: userId,
+        status: { $in: ['booked', 'occupied'] }
       });
+
+      if (existingBooking) {
+        return res.status(400).json({
+          success: false,
+          message: 'You already have an active seat booking'
+        });
+      }
     }
+
+    // if (existingBooking) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: 'You already have an active seat booking. Please release it first.'
+    //   });
+    // }
 
     // Update seat status
     // seat.status = isAdvanceBooking ? 'booked' : 'occupied';
@@ -190,7 +199,7 @@ exports.bookSeat = async (req, res) => {
 
     await seat.save();
 
-    const populatedSeat = await Seat.findById(seat._id).populate('bookedBy', 'name email');
+    const populatedSeat = await Seat.findById(seat._id).populate('bookedBy', 'name email scholarNumber enrollmentNumber');
 
     res.status(200).json({
       success: true,
@@ -260,7 +269,7 @@ exports.getUserBookings = async (req, res) => {
     const userId = req.params.userId || req.user._id;
 
     const bookings = await Seat.find({ bookedBy: userId })
-      .populate('bookedBy', 'name email')
+      .populate('bookedBy', 'name email scholarNumber enrollmentNumber')
       .sort({ bookingDate: -1 });
 
     res.status(200).json({
@@ -285,7 +294,7 @@ exports.getCurrentBooking = async (req, res) => {
     const booking = await Seat.findOne({
       bookedBy: userId,
       status: { $in: ['booked', 'occupied'] }
-    }).populate('bookedBy', 'name email');
+    }).populate('bookedBy', 'name email scholarNumber enrollmentNumber');
 
     res.status(200).json({
       success: true,
@@ -410,5 +419,69 @@ exports.initializeSeats = async (req, res) => {
       message: 'Error initializing seats',
       error: error.message
     });
+  }
+};
+
+
+// Admin seat booking for any student
+exports.adminBookSeat = async (req, res) => {
+  try {
+    const { seatId, studentId } = req.body;
+
+    const seat = await Seat.findById(seatId);
+    if (!seat) {
+      return res.status(404).json({ success: false, message: "Seat not found" });
+    }
+
+    if (seat.status !== "available") {
+      return res.status(400).json({ success: false, message: "Seat already occupied/booked" });
+    }
+
+    // IMPORTANT: check student already has seat
+    const existingSeat = await Seat.findOne({
+      bookedBy: studentId,
+      status: { $in: ["booked", "occupied"] }
+    });
+
+    if (existingSeat) {
+      return res.status(400).json({
+        success: false,
+        message: "This student already has an active seat"
+      });
+    }
+
+    // check student check-in
+    const CheckIn = require('../models/checkin');
+    const activeCheckIn = await CheckIn.findOne({
+      studentId,
+      status: "checked-in"
+    });
+
+    seat.bookedBy = studentId;
+    seat.bookingDate = new Date();
+    seat.bookingStartTime = new Date();
+
+    if (activeCheckIn) {
+      seat.status = "occupied";
+    } else {
+      seat.status = "booked";
+
+      // 20 min expiry
+      seat.bookingEndTime = new Date(Date.now() + 20 * 60000);
+    }
+
+    await seat.save();
+
+    const populated = await Seat.findById(seatId)
+      .populate("bookedBy", "name email scholarNumber");
+
+    res.json({
+      success: true,
+      message: "Seat booked by admin",
+      data: populated
+    });
+
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
 };

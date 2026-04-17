@@ -162,7 +162,7 @@ const checkOutStudent = async (req, res) => {
 
     // after checkout
     const seat = await Seat.findOne({
-      bookedBy: student._id,
+      bookedBy: record.studentId._id,
       status: { $in: ["booked", "occupied"] }
     });
 

@@ -6,41 +6,41 @@ const nodemailer = require("nodemailer");
 
 const registerUser = async (req, res) => {
   try {
-    const user = await User.findOne({email: req.body.email});
-    
+    const user = await User.findOne({ email: req.body.email });
+
     if (user) {
-      return res.status(403).json({success: false, message: "User already exists"});
+      return res.status(403).json({ success: false, message: "User already exists" });
     }
-    
+
     const newUser = new User(req.body);
     newUser.setPassword(req.body.password);
     const savedUser = await newUser.save();
-    
+
     return res.status(201).json({
       success: true,
       user: savedUser
     });
   } catch (err) {
-    return res.status(400).json({success: false, err});
+    return res.status(400).json({ success: false, err });
   }
 }
 
 const loginUser = async (req, res, next) => {
   try {
-    const user = await User.findOne({email: req.body.email});
-    
+    const user = await User.findOne({ email: req.body.email });
+
     if (!user) {
-      return res.status(404).json({success: false, message: "User not found"});
+      return res.status(404).json({ success: false, message: "User not found" });
     }
-    
+
     if (!user.salt || !user.hash) {
-      return res.status(401).json({success: false, message: "User password not set. Please contact administrator."});
+      return res.status(401).json({ success: false, message: "User password not set. Please contact administrator." });
     }
-    
+
     if (!user.isValidPassword(req.body.password)) {
-      return res.status(401).json({success: false, message: "Password incorrect"});
+      return res.status(401).json({ success: false, message: "Password incorrect" });
     }
-    
+
     passport.authenticate("local", (err, user, info) => {
       req.logIn(user, (err) => {
         if (err) {
@@ -53,17 +53,17 @@ const loginUser = async (req, res, next) => {
       });
     })(req, res, next);
   } catch (err) {
-    return res.status(500).json({success: false, err});
+    return res.status(500).json({ success: false, err });
   }
 }
 
-const forgotPassword = async (req,res)=>{
-  try{
+const forgotPassword = async (req, res) => {
+  try {
 
-    const user = await User.findOne({email:req.body.email})
+    const user = await User.findOne({ email: req.body.email })
 
-    if(!user){
-      return res.status(404).json({success:false,message:"User not found"})
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" })
     }
 
     const token = crypto.randomBytes(32).toString("hex")
@@ -74,39 +74,40 @@ const forgotPassword = async (req,res)=>{
     await user.save()
 
     const transporter = nodemailer.createTransport({
-      service:"gmail",
-      auth:{
-        user:process.env.EMAIL,
-        pass:process.env.EMAIL_PASS
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS
       }
     })
 
-    const resetLink = `http://localhost:3000/reset-password/${token}`
+    const resetLink = `http://localhost:3000/resetpassword/${token}`
 
     await transporter.sendMail({
-      to:user.email,
-      subject:"Password Reset",
-      html:`<p>Click below to reset password</p>
+      to: user.email,
+      subject: "Password Reset",
+      html: `<p>Click below to reset password</p>
             <a href="${resetLink}">${resetLink}</a>`
     })
 
-    res.json({success:true,message:"Reset link sent to email"})
+    res.json({ success: true, message: "Reset link sent to email" })
 
-  }catch(err){
-    res.status(500).json({success:false,err})
+  } catch (err) {
+    res.status(500).json({ success: false, err })
   }
 }
 
-const resetPassword = async (req,res)=>{
-  try{
+const resetPassword = async (req, res) => {
+  try {
 
     const user = await User.findOne({
-      resetPasswordToken:req.body.token,
-      resetPasswordExpires:{$gt:Date.now()}
+      // resetPasswordToken:req.body.token,
+      resetPasswordToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() }
     })
 
-    if(!user){
-      return res.status(400).json({success:false,message:"Invalid token"})
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Invalid token" })
     }
 
     user.setPassword(req.body.password)
@@ -116,10 +117,10 @@ const resetPassword = async (req,res)=>{
 
     await user.save()
 
-    res.json({success:true,message:"Password updated"})
+    res.json({ success: true, message: "Password updated" })
 
-  }catch(err){
-    res.status(500).json({success:false,err})
+  } catch (err) {
+    res.status(500).json({ success: false, err })
   }
 }
 
@@ -130,7 +131,7 @@ const logoutUser = async (req, res, next) => {
     }
     // res.redirect('/login');
   });
-  return res.status(200).json({success: true, message: "User logged out"});
+  return res.status(200).json({ success: true, message: "User logged out" });
 }
 
 module.exports = {

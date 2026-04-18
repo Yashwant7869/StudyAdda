@@ -7,7 +7,7 @@ const bookSchema = new mongoose.Schema({
   genreId: { type: mongoose.Schema.Types.ObjectId, ref: 'Genre', required: false },
   isAvailable: { type: Boolean, required: true, default: true },
   summary: { type: String, required: false },
-  photoUrl: { type: String, required: false },
+  photoUrl: { type: String },
 
   // Extended fields
   rfidTag: { type: String, sparse: true },

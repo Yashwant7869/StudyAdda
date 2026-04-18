@@ -23,5 +23,6 @@ router.post('/initialize', isAdmin, seatController.initializeSeats);
 router.post('/', isAdmin, seatController.createSeat);
 router.patch('/:seatId/status', isAdmin, seatController.updateSeatStatus);
 router.delete('/:id', isAdmin, seatController.deleteSeat);
+router.post('/admin-book', isAdmin, seatController.adminBookSeat);
 
 module.exports = router;

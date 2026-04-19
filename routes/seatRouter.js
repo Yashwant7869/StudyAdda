@@ -7,7 +7,7 @@ const seatController = require('../controllers/seatController');
 router.get('/statistics', seatController.getSeatStatistics);
 
 // All other routes require authentication
-router.use(isAuthenticated);
+// router.use(isAuthenticated);
 
 router.get('/', seatController.getAllSeats);
 router.get('/my-booking', seatController.getCurrentBooking);

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { isAuthenticated, isAdmin } = require('../middleware/auth');
+const { isAdmin } = require('../middleware/auth');
 const {
   getAuthor,
   getAllAuthors,
@@ -10,12 +10,12 @@ const {
 } = require('../controllers/authorController');
 
 // Members can read authors (for book browsing)
-router.get('/getAll', isAuthenticated, getAllAuthors);
-router.get('/get/:id', isAuthenticated, getAuthor);
+router.get('/getAll', getAllAuthors);
+router.get('/get/:id', getAuthor);
 
 // Admin-only
-router.post('/add', isAuthenticated, isAdmin, addAuthor);
-router.put('/update/:id', isAuthenticated, isAdmin, updateAuthor);
-router.delete('/delete/:id', isAuthenticated, isAdmin, deleteAuthor);
+router.post('/add', isAdmin, addAuthor);
+router.put('/update/:id', isAdmin, updateAuthor);
+router.delete('/delete/:id', isAdmin, deleteAuthor);
 
 module.exports = router;

@@ -52,24 +52,6 @@ const getAllBooks = async (req, res) => {
   });
 }
 
-// const addBook = async (req, res) => {
-//   const newBook = {
-//     ...req.body,
-//     genreId: mongoose.Types.ObjectId(req.body.genreId),
-//     authorId: mongoose.Types.ObjectId(req.body.authorId)
-//   }
-//   console.log(newBook)
-//   Book.create(newBook, (err, book) => {
-//     if (err) {
-//       return res.status(400).json({success: false, err});
-//     }
-
-//     return res.status(200).json({
-//       success: true,
-//       newBook: book
-//     });
-//   })
-// }
 const addBook = async (req, res) => {
   try {
     let imageUrl = "";
@@ -98,21 +80,6 @@ const addBook = async (req, res) => {
   }
 };
 
-// const updateBook = async (req, res) => {
-//   const bookId = req.params.id
-//   const updatedBook = req.body
-
-//   Book.findByIdAndUpdate(bookId, updatedBook, (err, book) => {
-//     if (err) {
-//       return res.status(400).json({success: false, err});
-//     }
-
-//     return res.status(200).json({
-//       success: true,
-//       updatedBook: book
-//     });
-//   })
-// }
 const updateBook = async (req, res) => {
   try {
     const bookId = req.params.id;

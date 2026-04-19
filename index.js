@@ -26,9 +26,13 @@ const memberRouter = require("./routes/memberRouter");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+const isProduction = process.env.NODE_ENV === "production";
 
 // Logging
 app.use(logger("dev"));
+
+// Trust Nginx reverse proxy so secure cookies work on HTTPS.
+app.set("trust proxy", 1);
 
 // Body parsers
 app.use(express.urlencoded({ extended: false }));
@@ -50,7 +54,8 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "http://localhost:3002",
-      "https://studyadda.me"
+      "https://studyadda.me",
+      "https://www.studyadda.me"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -64,9 +69,11 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000
     }
   })

@@ -50,7 +50,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "http://localhost:3002",
-      "https://studadda.me"
+      "https://studyadda.me"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -66,7 +66,7 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false,
+      secure: true,
       maxAge: 24 * 60 * 60 * 1000
     }
   })

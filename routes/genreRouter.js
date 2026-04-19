@@ -14,8 +14,8 @@ router.get('/getAll', getAllGenres);
 router.get('/get/:id', getGenre);
 
 // Admin-only
-router.post('/add', isAdmin, addGenre);
-router.put('/update/:id', isAdmin, updateGenre);
-router.delete('/delete/:id', isAdmin, deleteGenre);
+router.post('/add', addGenre);
+router.put('/update/:id', updateGenre);
+router.delete('/delete/:id', deleteGenre);
 
 module.exports = router;

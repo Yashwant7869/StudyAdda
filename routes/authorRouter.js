@@ -14,8 +14,8 @@ router.get('/getAll', getAllAuthors);
 router.get('/get/:id', getAuthor);
 
 // Admin-only
-router.post('/add', isAdmin, addAuthor);
-router.put('/update/:id', isAdmin, updateAuthor);
-router.delete('/delete/:id', isAdmin, deleteAuthor);
+router.post('/add', addAuthor);
+router.put('/update/:id', updateAuthor);
+router.delete('/delete/:id', deleteAuthor);
 
 module.exports = router;

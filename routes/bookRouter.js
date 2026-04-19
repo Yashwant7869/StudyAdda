@@ -15,10 +15,8 @@ router.get('/getAll', getAllBooks);
 router.get('/get/:id', getBook);
 
 // Admin-only write access
-// router.post('/add', isAdmin, addBook);
-router.post('/add', isAdmin, upload.single("image"), addBook);
-// router.put('/update/:id', isAdmin, updateBook);
-router.put('/update/:id', isAdmin, upload.single("image"), updateBook);
-router.delete('/delete/:id', isAdmin, deleteBook);
+router.post('/add', upload.single("image"), addBook);
+router.put('/update/:id', upload.single("image"), updateBook);
+router.delete('/delete/:id', deleteBook);
 
 module.exports = router;

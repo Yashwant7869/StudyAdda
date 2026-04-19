@@ -13,23 +13,23 @@ const {
   searchAvailableBooks
 } = require('../controllers/borrowalController');
 
-router.use(isAuthenticated);
+// router.use(isAuthenticated);
 
 // Search available books (for issue dialog) - must be before /:id routes
-router.get('/available-books', isAdmin, searchAvailableBooks);
+router.get('/available-books', searchAvailableBooks);
 
 // Student borrowal history
-router.get('/student/:studentId/history', isAdmin, getBorrowalsByStudent);
+router.get('/student/:studentId/history', getBorrowalsByStudent);
 
 // Currently issued books for a student
-router.get('/student/:studentId/issued', isAdmin, getIssuedBooksByStudent);
+router.get('/student/:studentId/issued', getIssuedBooksByStudent);
 
 // Admin CRUD
-router.get('/getAll', isAdmin, getAllBorrowals);
-router.get('/get/:id', isAdmin, getBorrowal);
-router.post('/add', isAdmin, addBorrowal);
-router.post('/return/:id', isAdmin, returnBorrowal);
-router.put('/update/:id', isAdmin, updateBorrowal);
-router.delete('/delete/:id', isAdmin, deleteBorrowal);
+router.get('/getAll', getAllBorrowals);
+router.get('/get/:id', getBorrowal);
+router.post('/add', addBorrowal);
+router.post('/return/:id', returnBorrowal);
+router.put('/update/:id', updateBorrowal);
+router.delete('/delete/:id', deleteBorrowal);
 
 module.exports = router;

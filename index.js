@@ -23,6 +23,7 @@ const checkInRouter = require("./routes/checkInRouter");
 const paymentRouter = require("./routes/paymentRouter");
 const dashboardRouter = require("./routes/dashboardRouter");
 const memberRouter = require("./routes/memberRouter");
+const rfidRouter = require("./routes/rfidRouter");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -101,6 +102,7 @@ app.use("/api/checkin", checkInRouter);
 app.use("/api/payment", paymentRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/member", memberRouter);
+app.use("/api/rfid", rfidRouter);
 
 app.get('/', (req, res) => res.send('StudyAdda Library Management API'));
 

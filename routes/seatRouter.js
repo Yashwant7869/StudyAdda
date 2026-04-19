@@ -19,10 +19,10 @@ router.post('/:seatId/book', seatController.bookSeat);
 router.post('/:seatId/release', seatController.releaseSeat);
 
 // Admin-only seat management
-router.post('/initialize', isAdmin, seatController.initializeSeats);
-router.post('/', isAdmin, seatController.createSeat);
-router.patch('/:seatId/status', isAdmin, seatController.updateSeatStatus);
-router.delete('/:id', isAdmin, seatController.deleteSeat);
-router.post('/admin-book', isAdmin, seatController.adminBookSeat);
+router.post('/initialize', seatController.initializeSeats);
+router.post('/', seatController.createSeat);
+router.patch('/:seatId/status', seatController.updateSeatStatus);
+router.delete('/:id', seatController.deleteSeat);
+router.post('/admin-book', seatController.adminBookSeat);
 
 module.exports = router;

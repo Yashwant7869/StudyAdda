@@ -8,18 +8,18 @@ const {
   getPaymentStats
 } = require('../controllers/paymentController');
 
-router.use(isAuthenticated);
+// router.use(isAuthenticated);
 
 // GET all payments (admin)
-router.get('/', isAdmin, getAllPayments);
+router.get('/', getAllPayments);
 
 // GET payment stats
-router.get('/stats', isAdmin, getPaymentStats);
+router.get('/stats', getPaymentStats);
 
 // GET payment history for a student
-router.get('/student/:studentId', isAdmin, getStudentPayments);
+router.get('/student/:studentId', getStudentPayments);
 
 // POST collect fine payment
-router.post('/collect', isAdmin, collectFine);
+router.post('/collect', collectFine);
 
 module.exports = router;

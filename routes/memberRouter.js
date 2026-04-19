@@ -18,7 +18,7 @@ const {
 } = require('../controllers/memberController');
 
 // All member routes require login + non-admin check
-// router.use(isAuthenticated, isMember);
+router.use(isAuthenticated, isMember);
 
 // Dashboard
 router.get('/dashboard', getMemberDashboard);

@@ -81,7 +81,7 @@ const forgotPassword = async (req, res) => {
       }
     })
 
-    const resetLink = `http://studyadda.me/resetpassword/${token}`
+    const resetLink = `https://studyadda.me/resetpassword/${token}`
 
     await transporter.sendMail({
       to: user.email,
